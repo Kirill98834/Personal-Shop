@@ -19,11 +19,6 @@ DB_HOST = clean(os.getenv("DB_HOST"))
 DB_PORT = clean(os.getenv("DB_PORT"))
 DB_NAME = clean(os.getenv("DB_NAME"))
 
-print("DB_USER:", repr(DB_USER))
-print("DB_PASSWORD:", repr(DB_PASSWORD))
-print("DB_HOST:", repr(DB_HOST))
-print("DB_PORT:", repr(DB_PORT))
-print("DB_NAME:", repr(DB_NAME))
 
 
 DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
