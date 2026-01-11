@@ -11,6 +11,6 @@ class Products(Base):
     description: Mapped[str]
     image: Mapped[str] = mapped_column(String(100))
     price: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2))
-    category_id: Mapped[int] = mapped_column(ForeignKey('categories.id'))
+    category_id: Mapped[int] = mapped_column(ForeignKey('categories.id')) #Вторичный ключ
 
     product_category: Mapped["Categories"] = relationship(back_populates='products')
