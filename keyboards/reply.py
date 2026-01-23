@@ -26,3 +26,10 @@ def get_main_menu():
     builder.button(text="⚙️ Настройки")
     builder.adjust(1, 3)
     return builder.as_markup(resize_keyboard=True)
+
+
+def back_to_main_menu():
+    """Возврат в главное меню"""
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Вернуться в главное меню")
+    return builder.as_markup(resize_keybord=True)

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import update, delete, select, DECIMAL, join, func
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import update, select, func
 
 from database.base import engine
 from database.models import (Users, Categories, Products, Carts,
@@ -45,3 +46,20 @@ def db_create_user_cart(chat_id):
         return False
     except AttributeError:
         return False
+
+
+def db_get_all_category():
+    """Получение всех категорий"""
+    with get_session() as session:
+        query = select(Categories)
+        return session.scalars(query).all()
+
+
+def db_get_finally_price(chat_id):
+    """Получение итоговой цены"""
+
+    with get_session() as session:
+        query = select(func.sum(FinallyCarts.final_price)).select_from(
+            join(Carts, FinallyCarts, Carts.id == FinallyCarts.cart_id)).join(Users, Users.id == Carts.user_id).where(
+            Users.telegram == chat_id)
+        return session.execute(query).fetchone()[0]
