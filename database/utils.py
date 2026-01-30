@@ -63,3 +63,17 @@ def db_get_finally_price(chat_id):
             join(Carts, FinallyCarts, Carts.id == FinallyCarts.cart_id)).join(Users, Users.id == Carts.user_id).where(
             Users.telegram == chat_id)
         return session.execute(query).fetchone()[0]
+
+
+def db_get_last_orders(chat_id, limit = 5):
+    """Получить последние 5 заказов"""
+    with get_session() as session:
+        query = (
+            select(Orders).
+            join(Carts, Orders.cart_id==Carts.id).
+            join(Users, Carts.user_id==Users.id).
+            where(Users.telegram == chat_id).
+            order_by(Orders.id.desc()).
+            limit(limit)
+        )
+        return session.scalars(query).all()
