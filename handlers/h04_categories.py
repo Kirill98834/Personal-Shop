@@ -1,8 +1,10 @@
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup
+from pyexpat.errors import messages
+from sqlalchemy.sql.functions import char_length
 
-from keyboards.inline import show_product_by_category
+from keyboards.inline import show_product_by_category, generate_category_menu
 
 router = Router()
 
@@ -24,3 +26,18 @@ async def show_product(callback: CallbackQuery):
 
     except TelegramBadRequest:
         await callback.answer("Не удалось открыть выбранную категорию")
+
+
+@router.callback_query(F.data == 'return_to_category')
+async  def return_to_category(callback: CallbackQuery):
+    """возврат к списку категорий"""
+    chat_id = callback.message.chat.id
+    message_id = callback.message.message_id
+
+
+    await  callback.bot.edit_message_text(
+        text='выберите категорию',
+        chat_id=chat_id,
+        message_id=message_id,
+        reply_markup=generate_category_menu(chat_id)
+    )

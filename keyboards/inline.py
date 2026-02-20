@@ -34,3 +34,4 @@ def show_product_by_category(category_id: int):
         InlineKeyboardButton(text="🔙 Назад", callback_data='return_to_category')
     )
     return builder.as_markup()
+
