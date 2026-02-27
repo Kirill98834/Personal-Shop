@@ -83,3 +83,10 @@ def db_get_product(category_id):
     with get_session() as session:
         query = select(Products).where(Products.category_id==category_id)
         return session.scalars(query).all()
+
+def db_get_product_by_id(product_id):
+    """Получение продукта по айди"""
+
+    with get_session() as session:
+        query = select(Products).where(Products.id == product_id)
+        return session.scalars(query)
