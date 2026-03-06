@@ -65,24 +65,26 @@ def db_get_finally_price(chat_id):
         return session.execute(query).fetchone()[0]
 
 
-def db_get_last_orders(chat_id, limit = 5):
+def db_get_last_orders(chat_id, limit=5):
     """Получить последние 5 заказов"""
     with get_session() as session:
         query = (
             select(Orders).
-            join(Carts, Orders.cart_id==Carts.id).
-            join(Users, Carts.user_id==Users.id).
+            join(Carts, Orders.cart_id == Carts.id).
+            join(Users, Carts.user_id == Users.id).
             where(Users.telegram == chat_id).
             order_by(Orders.id.desc()).
             limit(limit)
         )
         return session.scalars(query).all()
 
+
 def db_get_product(category_id):
     '''Получение продуктов по id категории'''
     with get_session() as session:
-        query = select(Products).where(Products.category_id==category_id)
+        query = select(Products).where(Products.category_id == category_id)
         return session.scalars(query).all()
+
 
 def db_get_product_by_id(product_id):
     """Получение продукта по айди"""
@@ -90,3 +92,36 @@ def db_get_product_by_id(product_id):
     with get_session() as session:
         query = select(Products).where(Products.id == product_id)
         return session.scalars(query)
+
+
+def db_get_user_cart(chat_id):
+    '''Получение корзины пользователя по ID корзины'''
+
+    with get_session() as session:
+        query = select(Carts).join(Users, Carts.user_id == Users.id).where(Users.telegram == chat_id)
+        return session.scalar(query)
+
+
+def db_add_or_update_item(cart_id, product_id, product_name, product_price, increment: int = 0):
+    '''Добавить товар или обновить количество существующего товара'''
+    try:
+        with get_session() as session:
+            item = (
+                session.query(FinallyCarts).filter_by(cart_id=cart_id, product_id=product_id).first()
+            )
+            if item:
+                if increment != 0:
+                    item.quantity = max(1, item.quantity + increment)
+
+            else:
+                qty = 1 if increment <= 0 else increment
+                item = FinallyCarts(
+                    cart_id=cart_id,
+                    product_id=product_id,
+                    product_name=product_name,
+                    quantity=qty,
+                    final_price=0,
+                )
+                session.add(item)
+
+            item.final_price = item.quantity * product_price
