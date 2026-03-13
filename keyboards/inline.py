@@ -35,3 +35,19 @@ def show_product_by_category(category_id: int):
     )
     return builder.as_markup()
 
+def quantity_cart_controls(quantity=1):
+    '''Кнопка для изменения количества товаров в корзине'''
+    builder = InlineKeyboardBuilder()
+    builder.button(text='➖', callback_data="action -")
+    builder.button(text=str(quantity), callback_data="quantity")
+    builder.button(text='➕', callback_data="action +")
+    builder.button(text="Добавить в корзину", callback_data="положить в корзину")
+    builder.button(text="🔙 Назад", callback_data="from_detail_to_category")
+
+    builder.adjust(3,1,1)
+
+    return builder.as_markup(resize_keyboard=True)
+
+
+
+

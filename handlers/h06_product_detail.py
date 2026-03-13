@@ -3,7 +3,8 @@ from aiogram.types import FSInputFile, CallbackQuery
 
 from bot_utils.message_utils import text_for_caption
 from database.utils import db_get_product_by_id, db_get_user_cart, db_add_or_update_item
-from keyboards.inline import generate_category_menu
+from keyboards.inline import generate_category_menu, quantity_cart_controls
+from keyboards.reply import phone_button
 
 router = Router()
 
@@ -41,8 +42,12 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
             photo=product_image,
             caption=caption,
             parse_mode = "HTML",
-            reply_markup= quantity_cart_controls(0)
+            reply_markup= quantity_cart_controls()
         )
     else:
         await ask_for_phone(chat_id, bot)
 
+
+async def ask_for_phone(chat_id, bot: Bot):
+    '''Запрос телефона пользователя если он не авторизован'''
+    await bot.send_message(chat_id=chat_id, text="Предоставьте номер телефона для продолжения", reply_markup=phone_button())
