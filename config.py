@@ -1,6 +1,6 @@
 from os import getenv
 
-from aiofiles import os
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

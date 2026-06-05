@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from database.base import engine
 from database.models import Users, Carts, Categories, FinallyCarts, Orders, Products
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import update, select, func, join, DECIMAL
+from sqlalchemy import update, select, delete, func, join, DECIMAL
 
-'''создание, чтение,изменение и удаление, данных с помощью функций в базу данных'''
+"""Модуль c функциями для работы с данными в базе данных."""
 
 
 def get_session():
@@ -12,7 +12,8 @@ def get_session():
 
 
 def db_register_user(full_name, chat_id):
-    """ регистрация пользователя в базе данных """
+    """Register a new user in the database."""
+
     try:
         with get_session() as session:
             query = Users(name=full_name, telegram=chat_id)
@@ -24,7 +25,7 @@ def db_register_user(full_name, chat_id):
 
 
 def db_update_user(chat_id, phone):
-    '''обновление номера телефона пользователя в базе данных'''
+    """Добавления телефона пользователя в базу данных."""
     with get_session() as session:
         query = update(Users).where(Users.telegram == chat_id).values(phone=phone)
         session.execute(query)
@@ -32,7 +33,7 @@ def db_update_user(chat_id, phone):
 
 
 def db_create_user_cart(chat_id):
-    '''создание корзины пользователя(одна корзина на одного пользователя)'''
+    """Создание корзины пользователя в базе данных."""
     try:
         with get_session() as session:
             subquery = session.scalar(select(Users).where(Users.telegram == chat_id))
@@ -42,12 +43,13 @@ def db_create_user_cart(chat_id):
             return True
     except IntegrityError:
         return False
+
     except AttributeError:
         return False
 
 
 def db_get_all_category():
-    '''получение всех категорий из базы данных'''
+    """Получение всех категорий из базы данных."""
     with get_session() as session:
         query = select(Categories)
         return session.scalars(query).all()
@@ -64,37 +66,39 @@ def db_get_finally_price(chat_id):
 
 
 def db_get_last_orders(chat_id, limit=5):
-    '''получение последних 5 заказов пользователя'''
+    """Получение последних 5 заказов."""
+
     with get_session() as session:
         query = (
             select(Orders).
             join(Carts, Orders.cart_id == Carts.id).
             join(Users, Carts.user_id == Users.id).
             where(Users.telegram == chat_id).
-            order_by(Orders.id.desc()).
-            limit(limit)
+            order_by(Orders.id.desc()).limit(limit)
         )
         return session.scalars(query).all()
 
 
-def db_get_product(category_id):
-    '''получение продуктов по id категории'''
+def db_get_products(category_id):
+    """получение продуктов по ID категории."""
+
     with get_session() as session:
         query = select(Products).where(Products.category_id == category_id)
         return session.scalars(query).all()
 
 
 def db_get_product_by_id(product_id):
-    """Получение продукта по id"""
+    """Возвращает информацию о товаре по его ID."""
     with get_session() as session:
         query = select(Products).where(Products.id == product_id)
         return session.scalar(query)
 
 
 def db_get_user_cart(chat_id):
-    '''получение корзины пользователя по id корзины'''
+    """Получение корзины пользователя по ID корзины"""
+
     with get_session() as session:
-        query = select(Carts).join(Users, Users.id == Carts.user_id).where(Users.telegram == chat_id)
+        query = select(Carts).join(Users, Carts.user_id == Users.id).where(Users.telegram == chat_id)
         return session.scalar(query)
 
 
@@ -105,7 +109,6 @@ def db_add_or_update_item(
         product_price: DECIMAL,
         increment: int = 0
 ):
-    """Добавление или обновление товара в корзине"""
     try:
         with get_session() as session:
             item = (
@@ -152,41 +155,75 @@ def db_add_or_update_item(
                 "total_products": int(total_products),
                 "product_quantity": item.quantity
             }
+
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
 
 def db_get_product_by_name(product_name):
-    """Получение продукта по имени"""
+    """Возвращает информацию о товаре по его ID."""
     with get_session() as session:
         query = select(Products).where(Products.product_name == product_name)
         return session.scalar(query)
 
 
-def db_get_cart_items(chat_id):
-    """Получение товаров из корзины пользователя"""
+def db_get_cart_items(chat_id: int):
+    """возвращает товары из корзины пользователя"""
     with get_session() as session:
         items = (
             session.query(FinallyCarts)
             .join(Carts, FinallyCarts.cart_id == Carts.id)
-            .join(Users, Carts.user_id == Users.id)
+            .join(Users, Users.id == Carts.user_id)
             .filter(Users.telegram == chat_id)
             .all()
-            )
+        )
+        print("########", items)
+
         result = []
         for item in items:
             result.append({
-                "product_id":item.product_id,
-                "product_name":item.product_name,
-                "quantity":item.quantity,
-                "final_price":float(item.final_price)
-            }
-            )
+                "product_id": item.product_id,
+                "product_name": item.product_name,
+                "quantity": item.quantity,
+                "final_price": float(item.final_price)
+            })
+
         return result
 
 
 def db_get_user_phone(chat_id):
-    '''Получение номера телефона пользователя по id'''
+    """Функция получения номера телфона клиента"""
     with get_session() as session:
         query = select(Users.phone).where(Users.telegram == chat_id)
-        return session.execute(query).fetchone()[0]
+        return session.execute(query).scalar()
+
+
+def db_save_order_history(chat_id):
+    """сохранение истории заказов"""
+    cart = db_get_user_cart(chat_id)
+
+    if not cart:
+        return None
+
+    with get_session() as session:
+        final_items = session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
+        for item in final_items:
+            session.add(Orders(
+                cart_id=item.cart_id,
+                product_name=item.product_name,
+                quantity=item.quantity,
+                final_price=item.final_price
+            ))
+        session.commit()
+
+def db_clear_finally_cart(chat_id):
+    '''Очистка финальной корзины'''
+    cart = db_get_user_cart(chat_id)
+
+    if not cart:
+        return
+    with get_session() as session:
+        query = delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id)
+        session.execute(query)
+        session.commit()
+
