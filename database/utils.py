@@ -79,7 +79,7 @@ def db_get_last_orders(chat_id, limit=5):
         return session.scalars(query).all()
 
 
-def db_get_products(category_id):
+def db_get_product(category_id):
     """получение продуктов по ID категории."""
 
     with get_session() as session:
@@ -226,4 +226,15 @@ def db_clear_finally_cart(chat_id):
         query = delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id)
         session.execute(query)
         session.commit()
+
+def db_get_product_for_delete(chat_id):
+    '''удаление товаров из корзины'''
+    with get_session() as session:
+        query = (
+            select(FinallyCarts.id, FinallyCarts.product_name)
+            .join(Carts, FinallyCarts.cart_id == Carts.id)
+            .join(Users, Carts.user_id == Users.id)
+            .where(Users.telegram == chat_id)
+        )
+        return session.execute(query).fetchall()
 

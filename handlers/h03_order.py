@@ -1,7 +1,6 @@
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.filters import CommandStart
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message
 
 from database.utils import db_get_last_orders
 from handlers.h02_get_contact import show_main_menu
