@@ -36,6 +36,7 @@ async def choose_product_to_remove(callback: CallbackQuery):
     await callback.message.edit_text("Выберите товар для уменьшения", reply_markup=builder.as_markup())
     await callback.answer()
 
+
 @router.callback_query(F.data.startswith('increase_'))
 async def increase_quantity(callback: CallbackQuery):
     '''Увеличение количества товаров'''
@@ -51,10 +52,8 @@ async def increase_quantity(callback: CallbackQuery):
     builder.button(text="➕ Увеличить количество", callback_data=f"increase_{cart_id}")
     builder.adjust(1)
 
-    await callback.message.edit_text(text = text, reply_markup = builder.as_markup())
+    await callback.message.edit_text(text=text, reply_markup=builder.as_markup())
     await callback.answer("Количество увеличено.")
-
-
 
 
 @router.callback_query(F.data == "back_to_cart_review")
