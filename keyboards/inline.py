@@ -66,7 +66,7 @@ def get_settings_menu():
     builder.button(text="Сменить язык", callback_data="change_language")
     builder.button(text="Удалить аккаунт", callback_data="delete_account")
     if MANAGER_ID:
-        builder.button("Связаться с менеджером 📲", url = f"tg://user&id={MANAGER_ID}")
+        builder.button(text = "Связаться с менеджером 📲", url = f"tg://user&id={MANAGER_ID}")
     builder.button(text = "Назад", callback_data="back_to_menu")
     builder.adjust(1)
     return builder.as_markup()
@@ -77,6 +77,14 @@ def get_language_keyboard():
     builder.button(text='Русский', callback_data="lang_ru")
     builder.button(text='English', callback_data="lang_en")
     builder.button(text='Назад ⬅️', callback_data="settings_menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+def delete_confirm_kb():
+    '''Кнопка удаления аккаунта'''
+    builder = InlineKeyboardBuilder
+    builder.button(text = "Удалить🗑️", callback_data = 'confirm_delete')
+    builder.button(text = "Отмена❌", callback_data= 'settings_menu')
     builder.adjust(1)
     return builder.as_markup()
 

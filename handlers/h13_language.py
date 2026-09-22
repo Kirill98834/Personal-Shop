@@ -6,7 +6,7 @@ from keyboards.inline import get_language_keyboard, get_settings_menu
 
 router = Router()
 
-@router.callback(F.data == "change_language")
+@router.callback_query(F.data == "change_language")
 async def change_language(callback:CallbackQuery):
     '''Смена языка'''
     await callback.message.edit_text(text="Сменить язык: ", reply_markup= get_language_keyboard())

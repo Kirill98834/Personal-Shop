@@ -273,5 +273,5 @@ def db_decrease_product_quantity(cart_id):
 def db_update_language(telegram_id, new_language):
     '''Обновление языка пользователя в базе данных'''
     with get_session() as session:
-        session.execute(update(Users).where(Users.telegram == telegram_id).values(language=language))
+        session.execute(update(Users).where(Users.telegram == telegram_id).values(language=new_language))
         session.commit()
