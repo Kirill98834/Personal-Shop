@@ -275,3 +275,23 @@ def db_update_language(telegram_id, new_language):
     with get_session() as session:
         session.execute(update(Users).where(Users.telegram == telegram_id).values(language=new_language))
         session.commit()
+
+def db_delete_user_by_telegram_id(chat_id):
+    '''Удаление пользователя по telegram_id'''
+    try:
+        with get_session() as session:
+            user = session.scalar(select(Users).where(Users.telegram == chat_id))
+            if not user:
+                return False
+            cart = session.scalar(select(Carts).where(Carts.user_id == user.id))
+            if cart:
+                session.execute(delete(Orders).where(Orders.cart_id == cart.id))
+                session.execute(delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id))
+                session.execute(delete(Carts).where(Carts.id == cart.id))
+
+            session.execute(delete(Users).where(Users.id == user.id))
+            session.commit()
+            return True
+    except Exception as e:
+        print("Ошибка при удалении пользователя:", e)
+        return False

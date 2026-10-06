@@ -3,6 +3,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery
 
 from config import MANAGER_ID
+from database.utils import db_delete_user_by_telegram_id
 from keyboards.inline import delete_confirm_kb, get_settings_menu
 from keyboards.reply import start_keyboard
 
