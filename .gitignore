@@ -12,11 +12,7 @@ __pycache__/
 
 # ▶️ Md
 *.md
-!readme.md
-*.jpg
 
-media/*
-!media/.gitkeep
-
+media/
 
 *.sqlite3

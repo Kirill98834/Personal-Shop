@@ -2,19 +2,20 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = BASE_DIR.parent
-
-
 load_dotenv(PROJECT_ROOT / '.env')
 
-SECRET_KEY = 'django-insecure-md)gqij7b1d5xwg+^no0e7o@0!t8o%+-z2wa4v$bgah0ek55sw'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    'jazzmin',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,10 +59,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT')
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -80,7 +80,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Europe/Moscow'
 
@@ -94,4 +94,48 @@ MAILERS = {
     'default': {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
+}
+
+JAZZMIN_SETTINGS = {
+    'site_title': 'Store',
+    'site_header': 'Panel of store',
+    'site_brand': 'Store_brand',
+    'welcome': 'Welcome',
+    'custom_css': 'css/custom_admin.css',
+
+
+    'search_model': ['store.Users', 'store.Products', 'store.Categories'],
+    'copyright': 'Store',
+    'topmenu-links': [{
+        'name': 'Главная',
+        'url': 'admin:index',
+    },
+        {
+            'name': 'Google',
+            'url': 'https://www.google.com/',
+            'new_window': True,
+
+    }],
+    'icons': {'store.Users': 'fas fa-User',
+              'store.Products': 'fas fa-cookie',
+              'store.Orders': 'fas fa-tag'},
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'hide_apps': [],
+
+    "order_with_respect_to": ['store', 'auth'],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'theme': 'lux',
+    'navbar_small_text': True,
+    'footer_small_text': True,
+    "body_small_text": True,
+    'brand_color': 'navbar-dark-primary',
+    'accent': 'accent-warning',
+
+    'navbar': 'navbar-dark navbar-primary navbar-shadow',
+    'no_navbar_bourder': True,
+    'sidebar': 'sidebar-dark-primary',
+    'sidebar_nav_small_text': True
 }
